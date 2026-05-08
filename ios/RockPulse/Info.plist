@@ -55,5 +55,10 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>We need Bluetooth to connect to your smartwatch and read heart rate data.</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>We need Bluetooth to find and connect to your smartwatch.</string>
+
 </dict>
 </plist>
