@@ -30,13 +30,13 @@ const DashboardPage = () => {
   const {
     manager,
     connectedDevices,
-    getSavedDeviceIds,
+    savedDevices,
     disconnectDevice,
     reconnectDeviceById,
+    removeDevice,
     connectingId,
   } = useBle();
 
-  const [savedDevices, setSavedDevices] = React.useState<any[]>([]);
   const [msgObj, setMsgObj] = React.useState<{
     message: string | null;
     success: boolean;
@@ -46,24 +46,13 @@ const DashboardPage = () => {
     success: false,
     duration: 3000,
   });
-  useEffect(() => {
-    const load = async () => {
-      const data = await getSavedDeviceIds();
-      setSavedDevices(data);
-    };
 
-    load();
-  }, []);
   // const connectedDevicesList = Array.from(connectedDevices.values());
-  // console.log(
-  //   '🚀 ~ DashboardPage ~ connectedDevicesList:',
-  //   connectedDevicesList,
-  //   savedDevices,
-  // );
+  console.log('🚀 ~ DashboardPage ~ connectedDevicesList:', savedDevices);
 
   const navigation = useNavigation<OnboardingScreenNavProp>();
 
-  const navToDetail = (id: string, name: string) => {
+  const navToDetail = (id: string, name: string | null) => {
     navigation.navigate('DeviceDetailTab', {
       id,
       name,
@@ -123,6 +112,7 @@ const DashboardPage = () => {
         <FlatList
           data={savedDevices}
           keyExtractor={item => item.id}
+          // progressViewOffset={5}
           renderItem={({ item }) => {
             // const Icon = item.icon;
             const isConnected = connectedDevices.has(item.id);
@@ -177,6 +167,15 @@ const DashboardPage = () => {
                             : reconnectDeviceById(item.id)
                         }
                       />
+                      <CustomButton
+                        title="Disconnect"
+                        loading={connectingId === item.id}
+                        disabled={connectingId === item.id}
+                        variant="secondary"
+                        onPress={async () => {
+                          await removeDevice(item.id);
+                        }}
+                      />
                     </View>
                   </View>
                   <View style={styles.iconWrapper}>
@@ -186,6 +185,18 @@ const DashboardPage = () => {
               </TouchableOpacity>
             );
           }}
+          ListEmptyComponent={
+            <Text
+              style={{
+                // backgroundColor: 'blue',
+                color: 'white',
+                textAlign: 'center',
+                fontSize: 16,
+              }}
+            >
+              No Connected Devices available
+            </Text>
+          }
           contentContainerStyle={
             {
               // paddingBottom: 20,

@@ -19,6 +19,7 @@ export type RootStackParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const MainRouter = () => {
+  const LazyBottomTabs = React.lazy(() => import('./BottomTabs/BottomTabs'));
   return (
     <NavigationContainer>
       <Stack.Navigator
@@ -32,7 +33,9 @@ const MainRouter = () => {
         initialRouteName="PublicDashboard"
       >
         <Stack.Screen name="PublicDashboard" component={PublicDashboard} />
-        <Stack.Screen name="BottomTabs" component={BottomTabs} />
+        <Stack.Screen name="BottomTabs">
+          {() => <LazyBottomTabs />}
+        </Stack.Screen>
         <Stack.Screen name="DeviceDetailTab" component={DetailsTab} />
       </Stack.Navigator>
     </NavigationContainer>

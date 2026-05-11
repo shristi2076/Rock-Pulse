@@ -46,13 +46,13 @@ const slides = [
       'Just turn on your location and you will find\nthe nearest pet care you wish.',
     image: headsetSvg,
   },
-  {
-    id: '4',
-    title: 'Care for\nyour pets',
-    subtitle:
-      'Just turn on your location and you will find\nthe nearest pet care you wish.',
-    image: EarbudSvg,
-  },
+  // {
+  //   id: '4',
+  //   title: 'Care for\nyour pets',
+  //   subtitle:
+  //     'Just turn on your location and you will find\nthe nearest pet care you wish.',
+  //   image: EarbudSvg,
+  // },
 ];
 
 type OnboardingScreenNavProp = StackNavigationProp<

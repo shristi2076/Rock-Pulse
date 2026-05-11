@@ -9,7 +9,7 @@ export type HomeStackParamList = {
   Dashboard: undefined;
   DeviceDetailTab: {
     id: string;
-    name: string;
+    name: string | null;
   };
 };
 

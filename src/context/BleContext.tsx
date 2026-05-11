@@ -1,31 +1,50 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BleManager, Device } from 'react-native-ble-plx';
 import CustomNotification from '@/components/elements/CustomNotification';
 
 const STORAGE_KEY = '@connected_device_ids';
 
+// ---------------- TYPES ----------------
+
+type SavedDevice = {
+  id: string;
+  name: string | null;
+};
+
 type BleContextType = {
   manager: BleManager;
+
   connectedDevices: Map<string, Device>;
+  savedDevices: SavedDevice[];
+
   connectingId: string | null;
-  getSavedDeviceIds: () => Promise<string[]>;
+
   connectDevice: (device: Device) => Promise<void>;
-  reconnectSavedDevices: (device: Device) => Promise<void>;
-  reconnectDeviceById: (id: string) => Promise<void>;
   disconnectDevice: (id: string) => Promise<void>;
+  removeDevice: (id: string) => Promise<void>;
+
+  reconnectDeviceById: (id: string) => Promise<void>;
+  reconnectSavedDevices: () => Promise<void>;
 };
 
 const BleContext = createContext<BleContextType | null>(null);
+
+// ---------------- PROVIDER ----------------
 
 export const BleProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [manager] = useState(() => new BleManager());
+
   const [connectedDevices, setConnectedDevices] = useState<Map<string, Device>>(
     new Map(),
   );
+
+  const [savedDevices, setSavedDevices] = useState<SavedDevice[]>([]);
+
   const [connectingId, setConnectingId] = useState<string | null>(null);
+
   const [msgObj, setMsgObj] = useState<{
     message: string | null;
     success: boolean;
@@ -36,56 +55,47 @@ export const BleProvider: React.FC<{ children: React.ReactNode }> = ({
     duration: 3000,
   });
 
-  // Save IDs only
-  type SavedDevice = {
-    id: string;
-    name: string | null;
+  // ---------------- LOAD SAVED ----------------
+
+  const loadSavedDevices = async () => {
+    try {
+      const stored = await AsyncStorage.getItem(STORAGE_KEY);
+
+      if (!stored) {
+        setSavedDevices([]);
+        return;
+      }
+
+      setSavedDevices(JSON.parse(stored));
+    } catch (e) {
+      console.log('Load error:', e);
+    }
   };
+
+  useEffect(() => {
+    loadSavedDevices();
+  }, []);
+
+  // ---------------- SAVE DEVICES ----------------
+
   const saveDeviceIds = async (devices: Map<string, Device>) => {
     try {
-      const existing = await AsyncStorage.getItem(STORAGE_KEY);
-      let existingList: SavedDevice[] = existing ? JSON.parse(existing) : [];
-
-      const newList: SavedDevice[] = Array.from(devices.values()).map(d => ({
+      const list: SavedDevice[] = Array.from(devices.values()).map(d => ({
         id: d.id,
         name: d.name ?? null,
       }));
 
-      //  merge + remove duplicates
-      const merged = [...existingList];
-
-      newList.forEach(newDevice => {
-        const index = merged.findIndex(d => d.id === newDevice.id);
-        if (index !== -1) {
-          merged[index] = newDevice;
-        } else {
-          merged.push(newDevice);
-        }
-      });
-
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+      setSavedDevices(list); // 🔥 instant UI update
     } catch (e) {
-      console.log(' Save error:', e);
+      console.log('Save error:', e);
     }
   };
 
-  const getSavedDeviceIds = async (): Promise<string[]> => {
-    try {
-      const stored = await AsyncStorage.getItem(STORAGE_KEY);
-      if (!stored) return [];
+  // ---------------- CONNECT ----------------
 
-      return JSON.parse(stored);
-    } catch (e) {
-      console.log(' Failed to get saved device IDs', e);
-      return [];
-    }
-  };
-
-  //  Connect
   const connectDevice = async (device: Device) => {
     try {
-      console.log(' Connecting:', device.id);
-
       let connected = device;
 
       const isConnected = await device.isConnected();
@@ -98,85 +108,84 @@ export const BleProvider: React.FC<{ children: React.ReactNode }> = ({
       setConnectedDevices(prev => {
         const updated = new Map(prev);
         updated.set(device.id, connected);
+
         saveDeviceIds(updated);
         return updated;
       });
-
-      console.log(' Connected:', device.id);
     } catch (e) {
-      console.log(' Connect error:', e);
+      console.log('Connect error:', e);
     }
   };
 
-  //  Disconnect
+  // ---------------- DISCONNECT ----------------
+
   const disconnectDevice = async (id: string) => {
     try {
-      console.log(' Disconnecting:', id);
-
       const isConnected = await manager.isDeviceConnected(id);
 
       if (isConnected) {
         await manager.cancelDeviceConnection(id);
       }
-      setMsgObj({
-        message: `${id} disconnected successfully`,
-        success: false,
-        duration: 5000,
-      });
-      // ALWAYS remove from UI (whether connected or not)
+
       setConnectedDevices(prev => {
         const updated = new Map(prev);
         updated.delete(id);
+
         saveDeviceIds(updated);
         return updated;
       });
+
+      setMsgObj({
+        message: 'Device disconnected',
+        success: false,
+        duration: 3000,
+      });
     } catch (e) {
-      console.log(' Disconnect error:', e);
+      console.log('Disconnect error:', e);
     }
   };
 
-  //  Auto reconnect on app start
-  const reconnectSavedDevices = async () => {
-    const stored = await AsyncStorage.getItem(STORAGE_KEY);
-    if (!stored) return;
+  // ---------------- REMOVE DEVICE ----------------
 
-    const ids: string[] = JSON.parse(stored);
-    if (ids.length === 0) return;
+  const removeDevice = async (id: string): Promise<void> => {
+    try {
+      const isConnected = await manager.isDeviceConnected(id);
 
-    console.log(' Manually reconnecting:', ids);
-
-    for (const id of ids) {
-      try {
-        const device = await manager.connectToDevice(id, {
-          timeout: 10000,
-        });
-
-        await device.discoverAllServicesAndCharacteristics();
-
-        setConnectedDevices(prev => {
-          const updated = new Map(prev);
-          updated.set(id, device);
-          return updated;
-        });
-
-        console.log(' Reconnected:', id);
-      } catch (e) {
-        console.log(' Failed to reconnect:', id, e);
+      if (isConnected) {
+        await manager.cancelDeviceConnection(id);
       }
+
+      const filtered = savedDevices.filter(d => d.id !== id);
+
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+
+      setSavedDevices(filtered);
+
+      setConnectedDevices(prev => {
+        const updated = new Map(prev);
+        updated.delete(id);
+        return updated;
+      });
+
+      setMsgObj({
+        message: 'Device removed',
+        success: true,
+        duration: 3000,
+      });
+    } catch (e) {
+      console.log('Remove error:', e);
     }
   };
 
-  const reconnectDeviceById = async (id: string): Promise<void> => {
+  // ---------------- RECONNECT SINGLE ----------------
+
+  const reconnectDeviceById = async (id: string) => {
     setConnectingId(id);
 
     try {
-      console.log(' connecting:', id);
-
       try {
         await manager.cancelDeviceConnection(id);
-      } catch (e: any) {
-        console.log('error disconnecting', e);
-      }
+      } catch {}
 
       await new Promise<void>(res => setTimeout(res, 500));
 
@@ -185,43 +194,64 @@ export const BleProvider: React.FC<{ children: React.ReactNode }> = ({
       });
 
       await device.discoverAllServicesAndCharacteristics();
-      setMsgObj({
-        message: `${id} connected successfully`,
-        success: true,
-        duration: 5000,
-      });
+
       setConnectedDevices(prev => {
         const updated = new Map(prev);
         updated.set(id, device);
-
         return updated;
       });
-
-      console.log('connected:', id);
-    } catch (e: any) {
-      console.log('connect failed:', e);
-      // Set the message to show the UI
-      setMsgObj({
-        message: e.message || 'Failed to connect',
-        success: false,
-        duration: 5000,
-      });
+    } catch (e) {
+      console.log('Reconnect error:', e);
     } finally {
       setConnectingId(null);
     }
   };
+
+  // ---------------- RECONNECT ALL ----------------
+
+  const reconnectSavedDevices = async () => {
+    try {
+      const stored = await AsyncStorage.getItem(STORAGE_KEY);
+      if (!stored) return;
+
+      const devices: SavedDevice[] = JSON.parse(stored);
+
+      for (const d of devices) {
+        try {
+          const device = await manager.connectToDevice(d.id, {
+            timeout: 10000,
+          });
+
+          await device.discoverAllServicesAndCharacteristics();
+
+          setConnectedDevices(prev => {
+            const updated = new Map(prev);
+            updated.set(d.id, device);
+            return updated;
+          });
+        } catch (e) {
+          console.log('Reconnect failed:', d.id, e);
+        }
+      }
+    } catch (e) {
+      console.log('Reconnect all error:', e);
+    }
+  };
+
+  // ---------------- PROVIDER ----------------
 
   return (
     <BleContext.Provider
       value={{
         manager,
         connectedDevices,
-        getSavedDeviceIds,
-        connectDevice,
-        reconnectSavedDevices,
-        reconnectDeviceById,
-        disconnectDevice,
+        savedDevices,
         connectingId,
+        connectDevice,
+        disconnectDevice,
+        removeDevice,
+        reconnectDeviceById,
+        reconnectSavedDevices,
       }}
     >
       {msgObj.message && (
@@ -235,6 +265,8 @@ export const BleProvider: React.FC<{ children: React.ReactNode }> = ({
     </BleContext.Provider>
   );
 };
+
+// ---------------- HOOK ----------------
 
 export const useBle = () => {
   const ctx = useContext(BleContext);

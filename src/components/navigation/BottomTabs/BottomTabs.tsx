@@ -75,7 +75,7 @@ const BottomTabs: React.FC = () => {
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        animation: 'fade',
+        animation: 'none',
         tabBarActiveTintColor: '#FFD700',
         tabBarInactiveTintColor: '#f6f8f8',
         tabBarStyle: {

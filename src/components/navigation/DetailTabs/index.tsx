@@ -1,25 +1,29 @@
 import DeviceDetail from '@/screens/DeviceDetail';
 import Ionicons from '@react-native-vector-icons/ionicons';
 
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, useWindowDimensions } from 'react-native';
-import { HomeStackParamList } from '../HomeStack/HomeStack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+// import { useWindowDimensions } from 'react-native';
+import { HomeStackParamList } from '../HomeStack/HomeStack';
 
 type DetailTabParamList = {
   Health: {
     id: string;
-    name: string;
+    name: string | null;
   };
 
   Gallery: {
     id: string;
-    name: string;
+    name: string | null;
   };
 
   WorkOut: {
     id: string;
-    name: string;
+    name: string | null;
+  };
+  Setting: {
+    id: string;
+    name: string | null;
   };
 };
 
@@ -29,7 +33,7 @@ const Tab = createBottomTabNavigator<DetailTabParamList>();
 
 const DetailsTab = ({ route }: Props) => {
   const { id, name } = route.params;
-  const { width } = useWindowDimensions();
+  // const { width } = useWindowDimensions();
   // const TAB_WIDTH = width * 0.85;
 
   return (
@@ -127,6 +131,22 @@ const DetailsTab = ({ route }: Props) => {
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? 'walk' : 'walk-outline'}
+              size={30}
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Setting"
+        component={DeviceDetail}
+        initialParams={{ id, name }}
+        options={{
+          tabBarLabel: 'Setting',
+
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              name={focused ? 'settings' : 'settings-outline'}
               size={30}
               color={color}
             />
