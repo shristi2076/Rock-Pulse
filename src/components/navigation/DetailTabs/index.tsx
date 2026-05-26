@@ -4,6 +4,7 @@ import Ionicons from '@react-native-vector-icons/ionicons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 // import { useWindowDimensions } from 'react-native';
+import HealthDetail from '@/screens/HealthDetail';
 import { HomeStackParamList } from '../HomeStack/HomeStack';
 
 type DetailTabParamList = {
@@ -89,7 +90,7 @@ const DetailsTab = ({ route }: Props) => {
     >
       <Tab.Screen
         name="Health"
-        component={DeviceDetail}
+        component={HealthDetail}
         initialParams={{ id, name }}
         options={{
           tabBarLabel: 'Health',
