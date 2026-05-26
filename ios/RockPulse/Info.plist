@@ -55,6 +55,8 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>UIUserInterfaceStyle</key>
+	<string>Light</string>
 	<key>NSBluetoothAlwaysUsageDescription</key>
 	<string>We need Bluetooth to connect to your smartwatch and read heart rate data.</string>
 	<key>NSBluetoothPeripheralUsageDescription</key>
