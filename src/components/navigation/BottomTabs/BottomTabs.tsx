@@ -37,16 +37,16 @@ const BottomTabs: React.FC = () => {
         ),
       },
     },
-    // {
-    //   name: 'MusicRouter',
-    //   component: HomeStack,
-    //   options: {
-    //     tabBarLabel: 'Music',
-    //     tabBarIcon: ({ color, size }) => (
-    //       <Ionicons name={'musical-notes'} size={size} color={color} />
-    //     ),
-    //   },
-    // },
+    {
+      name: 'MusicRouter',
+      component: MusicPlayer,
+      options: {
+        tabBarLabel: 'Music',
+        tabBarIcon: ({ color, size }) => (
+          <Ionicons name={'musical-notes'} size={size} color={color} />
+        ),
+      },
+    },
     {
       name: 'AddRouter',
       component: AddStack,

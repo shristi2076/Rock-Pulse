@@ -14,6 +14,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { BleManager, State } from 'react-native-ble-plx';
 import { BleProvider } from '@/context/BleContext';
 import MainRouter from 'src/components/navigation';
+import { MusicPlayerProvider } from '@/context/MusicPlayerContext';
 
 const manager = new BleManager();
 
@@ -161,12 +162,14 @@ function App() {
   //  Main App
   return (
     <BleProvider>
-      <SafeAreaProvider>
-        <StatusBar barStyle="dark-content" />
-        <View style={{ flex: 1 }}>
-          <MainRouter />
-        </View>
-      </SafeAreaProvider>
+      <MusicPlayerProvider>
+        <SafeAreaProvider>
+          <StatusBar barStyle="dark-content" />
+          <View style={{ flex: 1 }}>
+            <MainRouter />
+          </View>
+        </SafeAreaProvider>
+      </MusicPlayerProvider>
     </BleProvider>
   );
 }
