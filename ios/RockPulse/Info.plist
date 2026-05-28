@@ -60,7 +60,8 @@
 	<key>NSBluetoothAlwaysUsageDescription</key>
 	<string>We need Bluetooth to connect to your smartwatch and read heart rate data.</string>
 	<key>NSBluetoothPeripheralUsageDescription</key>
-	<string>We need Bluetooth to find and connect to your smartwatch.</string>
-
+	<string>We need Bluetooth to find and connect to your smartwatch.</string>	
+	<key>NSAppleMusicUsageDescription</key>
+	<string>This permission is not needed by the app, but it is required by an underlying API. If you see this dialog, contact us.</string>
 </dict>
 </plist>
