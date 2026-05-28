@@ -1,31 +1,12 @@
-import {
-  NavigationContainer,
-  NavigatorScreenParams,
-} from '@react-navigation/native';
+import { NavigationContainer } from '@react-navigation/native';
 import React, { Suspense } from 'react';
 
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import PublicDashboard from '../../screens/PublicDashboard';
-import DetailsTab from './DetailTabs';
-import NowPlayingScreen from '../templates/MusicPlayerTemplate/NowPlayingScreen';
-import { Track } from '@/types/music';
 import { ActivityIndicator, StatusBar } from 'react-native';
-import { BottomTabParamList } from './BottomTabs/BottomTabs';
-
-// Define the types for the stack routes
-export type RootStackParamList = {
-  BottomTabs: NavigatorScreenParams<BottomTabParamList>;
-  PublicDashboard: undefined;
-  DeviceDetailTab: {
-    id: string;
-    name: string;
-  };
-  MusicId: {
-    tracks: Track[];
-    currentTrackIndex: number;
-    isPlaying: boolean;
-  };
-};
+import PublicDashboard from '../../screens/PublicDashboard';
+import NowPlayingScreen from '../templates/MusicPlayerTemplate/NowPlayingScreen';
+import DetailsTab from './DetailTabs';
+import { RootStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 

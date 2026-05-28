@@ -23,12 +23,8 @@ import { useMusicPlayer } from '@/context/MusicPlayerContext';
 import { formatTime } from '@/services/commonFunction';
 
 import MusicHeader from '@/components/elements/CustomPageHeader/MusicHeader';
-import { RootStackParamList } from '@/components/navigation';
-import { BottomTabParamList } from '@/components/navigation/BottomTabs/BottomTabs';
+import { MusicPlayerScreenProps } from '@/components/navigation/types';
 import { Track } from '@/types/music';
-import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
-import { CompositeScreenProps } from '@react-navigation/native';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 const blockedFolders = [
   'Android',
@@ -39,10 +35,7 @@ const blockedFolders = [
   'cache',
 ];
 
-type Props = CompositeScreenProps<
-  BottomTabScreenProps<BottomTabParamList, 'MusicRouter'>,
-  NativeStackScreenProps<RootStackParamList>
->;
+type Props = MusicPlayerScreenProps;
 
 export default function MusicPlayerTemplate({
   navigation,

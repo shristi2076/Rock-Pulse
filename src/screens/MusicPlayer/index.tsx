@@ -1,11 +1,8 @@
-import { BottomTabParamList } from '@/components/navigation/BottomTabs/BottomTabs';
+import { MusicPlayerScreenProps } from '@/components/navigation/types';
 import MusicPlayerTemplate from '@/components/templates/MusicPlayerTemplate';
-import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import React from 'react';
 
-type Props = BottomTabScreenProps<BottomTabParamList, 'MusicRouter'>;
-
-const MusicPlayer: React.FC<Props> = props => {
+const MusicPlayer: React.FC<MusicPlayerScreenProps> = props => {
   return <MusicPlayerTemplate {...props} />;
 };
 

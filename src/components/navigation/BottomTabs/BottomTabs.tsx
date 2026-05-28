@@ -9,6 +9,7 @@ import { Image } from 'react-native';
 import Ionicons from '@react-native-vector-icons/ionicons';
 import AddStack from '../AddStack/AddStack';
 import HomeStack from '../HomeStack/HomeStack';
+import MusicPlayer from '@/screens/MusicPlayer';
 
 // ✅ Types
 export type BottomTabParamList = {
