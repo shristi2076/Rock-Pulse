@@ -12,15 +12,26 @@ import Ionicons from '@react-native-vector-icons/ionicons';
 
 type Props = {
   value: string;
+  bgColor?: string;
   onChangeText: (text: string) => void;
   goBack: () => void;
 };
 
-export default function MusicHeader({ value, onChangeText, goBack }: Props) {
+export default function MusicHeader({
+  value,
+  bgColor,
+  onChangeText,
+  goBack,
+}: Props) {
   const [isSearching, setIsSearching] = useState(false);
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: bgColor ? bgColor : '#120514' },
+      ]}
+    >
       {!isSearching ? (
         <>
           <TouchableOpacity style={styles.iconBtn} onPress={goBack}>
@@ -73,7 +84,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#120514',
   },
 
   title: {

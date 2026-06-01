@@ -18,11 +18,16 @@ import Slider from '@react-native-community/slider';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
 
 import { formatTime } from '@/services/commonFunction';
+import MusicHeader from '@/components/elements/CustomPageHeader/MusicHeader';
 
 export default function NowPlayingScreen({ navigation }: any) {
   const [isSliding, setIsSliding] = useState(false);
 
+  const [searchText, setSearchText] = useState('');
+
   const [sliderValue, setSliderValue] = useState(0);
+
+  const [sliderWidth, setSliderWidth] = useState(0);
 
   const {
     currentTrack,
@@ -49,8 +54,7 @@ export default function NowPlayingScreen({ navigation }: any) {
     <View style={styles.container}>
       <StatusBar backgroundColor="#FFD400" barStyle="dark-content" />
 
-      <View style={styles.topSection}>
-        <TouchableOpacity
+      {/* <TouchableOpacity
           style={styles.backBtn}
           onPress={() => navigation.goBack()}
         >
@@ -61,9 +65,17 @@ export default function NowPlayingScreen({ navigation }: any) {
 
         <TouchableOpacity style={styles.searchBtn}>
           <Ionicons name="ellipsis-horizontal" size={22} color="#000" />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
+      <View style={styles.topSection}>
+        <MusicHeader
+          bgColor="#FFD400"
+          value={searchText}
+          onChangeText={setSearchText}
+          goBack={() => {
+            navigation.goBack();
+          }}
+        />
       </View>
-
       <View style={styles.heroContainer}>
         <Image
           source={{
@@ -76,34 +88,51 @@ export default function NowPlayingScreen({ navigation }: any) {
       <Text style={styles.artist}>Local Music</Text>
 
       <Text style={styles.title}>{currentTrack.title}</Text>
-      <Text style={styles.title}>{formatTime(sliderValue)}</Text>
+      {/* <Text style={styles.title}>{formatTime(sliderValue)}</Text> */}
 
-      <Slider
-        style={{
-          width: '90%',
-          alignSelf: 'center',
-          marginTop: 40,
+      <View
+        style={styles.sliderContainer}
+        onLayout={event => {
+          setSliderWidth(event.nativeEvent.layout.width);
         }}
-        value={sliderValue}
-        minimumValue={0}
-        maximumValue={currentTrack.duration}
-        minimumTrackTintColor="#FFD400"
-        maximumTrackTintColor="#555"
-        thumbTintColor="#FFD400"
-        onSlidingStart={() => {
-          setIsSliding(true);
-        }}
-        onValueChange={value => {
-          setSliderValue(value);
-        }}
-        onSlidingComplete={value => {
-          seekTo(value);
+      >
+        {isSliding && (
+          <View
+            style={[
+              styles.tooltip,
+              {
+                left: (sliderValue / currentTrack.duration) * sliderWidth - 25,
+              },
+            ]}
+          >
+            <Text style={styles.tooltipText}>{formatTime(sliderValue)}</Text>
+          </View>
+        )}
 
-          setSliderValue(value);
+        <Slider
+          style={styles.slider}
+          value={sliderValue}
+          minimumValue={0}
+          maximumValue={currentTrack.duration}
+          step={1}
+          minimumTrackTintColor="#FFD400"
+          maximumTrackTintColor="#555"
+          thumbTintColor="#FFD400"
+          onSlidingStart={() => {
+            setIsSliding(true);
+          }}
+          onValueChange={value => {
+            setSliderValue(value);
+          }}
+          onSlidingComplete={value => {
+            seekTo(value);
 
-          setIsSliding(false);
-        }}
-      />
+            setSliderValue(value);
+
+            setIsSliding(false);
+          }}
+        />
+      </View>
 
       <View style={styles.timeRow}>
         <Text style={styles.time}>{formatTime(currentTime)}</Text>
@@ -143,9 +172,9 @@ const styles = StyleSheet.create({
     height: 310,
     borderBottomLeftRadius: 120,
     borderBottomRightRadius: 120,
-    paddingHorizontal: 20,
+    // paddingHorizontal: 20,
     paddingTop: 10,
-    alignItems: 'center',
+    // alignItems: 'center',
   },
 
   backBtn: {
@@ -218,5 +247,30 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginHorizontal: 30,
+  },
+  sliderContainer: {
+    width: '90%',
+    alignSelf: 'center',
+    marginTop: 40,
+  },
+
+  slider: {
+    width: '100%',
+  },
+
+  tooltip: {
+    position: 'absolute',
+    top: -35,
+    width: 50,
+    paddingVertical: 4,
+    borderRadius: 8,
+    backgroundColor: '#FFD400',
+    alignItems: 'center',
+  },
+
+  tooltipText: {
+    color: '#000',
+    fontWeight: '700',
+    fontSize: 12,
   },
 });
