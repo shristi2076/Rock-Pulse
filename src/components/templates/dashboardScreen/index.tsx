@@ -19,6 +19,7 @@ import CustomNotification from '@/components/elements/common/CustomNotification'
 import { HomeStackParamList } from '@/components/navigation/HomeStack/HomeStack';
 import LinearGradient from 'react-native-linear-gradient';
 import { useBle } from 'src/context/BleContext';
+import { SafeAreaView } from 'react-native-safe-area-context';
 // import { SearchBar } from 'react-native-screens';
 
 type OnboardingScreenNavProp = StackNavigationProp<
@@ -77,7 +78,7 @@ const DashboardPage = () => {
 
   return (
     <>
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.headertitle}>
@@ -212,7 +213,7 @@ const DashboardPage = () => {
             isSuccess={msgObj.success}
           />
         )}
-      </View>
+      </SafeAreaView>
     </>
   );
 };

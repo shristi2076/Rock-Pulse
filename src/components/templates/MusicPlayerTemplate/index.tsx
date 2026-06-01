@@ -25,6 +25,7 @@ import { formatTime } from '@/services/commonFunction';
 import MusicHeader from '@/components/elements/common/CustomPageHeader/MusicHeader';
 import { MusicPlayerScreenProps } from '@/components/navigation/types';
 import { Track } from '@/types/music';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const blockedFolders = [
   'Android',
@@ -187,7 +188,7 @@ export default function MusicPlayerTemplate({
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       {/* <CustomPageHeader
         name="Music Player"
         onBack={() => navigation.goBack()}
@@ -344,7 +345,7 @@ export default function MusicPlayerTemplate({
           </TouchableOpacity>
         </TouchableOpacity>
       )}
-    </View>
+    </SafeAreaView>
   );
 }
 

@@ -10,6 +10,7 @@ import Ionicons from '@react-native-vector-icons/ionicons';
 import AddStack from '../AddStack/AddStack';
 import HomeStack from '../HomeStack/HomeStack';
 import MusicPlayer from '@/screens/MusicPlayer';
+import SettingStack from '../SettingStack';
 
 // ✅ Types
 export type BottomTabParamList = {
@@ -58,18 +59,18 @@ const BottomTabs: React.FC = () => {
         ),
       },
     },
-    // {
-    //   name: 'SettingsRouter',
-    //   // component: AddDevicesScreen,
-    //   component: AddStack,
+    {
+      name: 'SettingsRouter',
+      // component: AddDevicesScreen,
+      component: SettingStack,
 
-    //   options: {
-    //     tabBarLabel: 'Settings',
-    //     tabBarIcon: ({ color, size }) => (
-    //       <Ionicons name={'settings'} size={size} color={color} />
-    //     ),
-    //   },
-    // },
+      options: {
+        tabBarLabel: 'Settings',
+        tabBarIcon: ({ color, size }) => (
+          <Ionicons name={'settings'} size={size} color={color} />
+        ),
+      },
+    },
   ];
 
   return (

@@ -19,6 +19,7 @@ import { useMusicPlayer } from '@/context/MusicPlayerContext';
 
 import { formatTime } from '@/services/commonFunction';
 import MusicHeader from '@/components/elements/common/CustomPageHeader/MusicHeader';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function NowPlayingScreen({ navigation }: any) {
   const [isSliding, setIsSliding] = useState(false);
@@ -51,7 +52,7 @@ export default function NowPlayingScreen({ navigation }: any) {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor="#FFD400" barStyle="dark-content" />
 
       {/* <TouchableOpacity
@@ -157,7 +158,7 @@ export default function NowPlayingScreen({ navigation }: any) {
           <Ionicons name="play-skip-forward" size={34} color="#fff" />
         </TouchableOpacity>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 

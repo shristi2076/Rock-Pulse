@@ -17,9 +17,9 @@ import headsetSvg from '../../../assets/images/headset.svg';
 import watchSVg from '../../../assets/images/watch.svg';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from '../../navigation';
 import Ionicons from '@react-native-vector-icons/ionicons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { RootStackParamList } from '@/components/navigation/types';
 
 const { width, height } = Dimensions.get('window');
 
