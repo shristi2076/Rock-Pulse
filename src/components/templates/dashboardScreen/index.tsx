@@ -13,9 +13,9 @@ import {
 } from 'react-native';
 
 // import SettingSvg from '@/assets/images/setting.svg';
-import CustomButton from '@/components/elements/CustomButton';
-import DeviceIcon from '@/components/elements/CustomIcons';
-import CustomNotification from '@/components/elements/CustomNotification';
+import CustomButton from '@/components/elements/common/CustomButton';
+import DeviceIcon from '@/components/elements/common/CustomIcons';
+import CustomNotification from '@/components/elements/common/CustomNotification';
 import { HomeStackParamList } from '@/components/navigation/HomeStack/HomeStack';
 import LinearGradient from 'react-native-linear-gradient';
 import { useBle } from 'src/context/BleContext';

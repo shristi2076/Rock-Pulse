@@ -22,7 +22,7 @@ import { useMusicPlayer } from '@/context/MusicPlayerContext';
 
 import { formatTime } from '@/services/commonFunction';
 
-import MusicHeader from '@/components/elements/CustomPageHeader/MusicHeader';
+import MusicHeader from '@/components/elements/common/CustomPageHeader/MusicHeader';
 import { MusicPlayerScreenProps } from '@/components/navigation/types';
 import { Track } from '@/types/music';
 

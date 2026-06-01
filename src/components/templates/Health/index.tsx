@@ -15,7 +15,7 @@ import Ionicons from '@react-native-vector-icons/ionicons';
 import { RouteProp, useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useBle } from 'src/context/BleContext';
-import DeviceIcon from '@/components/elements/CustomIcons';
+import DeviceIcon from '@/components/elements/common/CustomIcons';
 import {
   getBatteryLevel,
   getCurrentSteps,

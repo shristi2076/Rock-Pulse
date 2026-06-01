@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BleManager, Device } from 'react-native-ble-plx';
-import CustomNotification from '@/components/elements/CustomNotification';
+import CustomNotification from '@/components/elements/common/CustomNotification';
 
 const STORAGE_KEY = '@connected_device_ids';
 
