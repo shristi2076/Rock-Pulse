@@ -8,7 +8,7 @@ type Props = {
   data: string[];
 
   value: string;
-  unit: string;
+  unit?: string;
 
   onChange: (value: string) => void;
 };
@@ -17,11 +17,11 @@ const ITEM_HEIGHT = 50;
 const VISIBLE_ITEMS = 9;
 
 const WheelPicker = ({ data, value, unit, onChange }: Props) => {
-  const scrollY = useRef(new Animated.Value(0)).current;
-  const listRef = useRef<FlatList>(null);
-
   const initialIndex = data.indexOf(value);
-  console.log('🚀 ~ WheelPicker ~ initialIndex:', initialIndex, value);
+  const scrollY = useRef(
+    new Animated.Value((initialIndex >= 0 ? initialIndex : 0) * ITEM_HEIGHT),
+  ).current;
+  const listRef = useRef<FlatList>(null);
 
   return (
     <View style={styles.container}>
@@ -45,7 +45,6 @@ const WheelPicker = ({ data, value, unit, onChange }: Props) => {
           const index = Math.round(
             event.nativeEvent.contentOffset.y / ITEM_HEIGHT,
           );
-          console.log('🚀 ~ index:', index);
 
           const selected = data[index] ?? data[0];
 
@@ -152,7 +151,7 @@ const styles = StyleSheet.create({
 
   itemText: {
     color: '#FFFFFF',
-    fontSize: 28,
+    fontSize: 20,
     fontWeight: '600',
   },
 });
