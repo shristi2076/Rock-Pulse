@@ -10,10 +10,10 @@ import Ionicons from '@react-native-vector-icons/ionicons';
 
 const menuItems = [
   'Profile',
-  'Connected Devices',
-  'Warranty Card',
-  'Instruction Manual',
-  'Support',
+  // 'Connected Devices',
+  // 'Warranty Card',
+  // 'Instruction Manual',
+  // 'Support',
 ];
 
 import CustomPageHeader from '@/components/elements/common/CustomPageHeader';
