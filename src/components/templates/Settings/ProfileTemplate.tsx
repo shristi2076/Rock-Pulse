@@ -13,44 +13,69 @@ import { ProfileStackParamList } from '@/components/navigation/ProfileStack';
 import { StyleSheet, View } from 'react-native';
 import { getLatestWeight } from '@/storage/service/weight.service';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { getBirthDate } from '@/storage/service/birthDate,service';
+import { formatBirthDate } from '@/functions/date.function';
+import { getGender } from '@/storage/service/gender.service';
+import { getLatestHeight } from '@/storage/service/height.service';
+import { getLatestStepLength } from '@/storage/service/stepLength.service';
 
 const ProfileTemplate = () => {
   const navigation = useNavigation<NavigationProp<ProfileStackParamList>>();
-  const [weight, setWeight] = useState('60.0');
+  const [profile, setProfile] = useState({
+    gender: '',
+    height: '',
+    weight: '',
+    birthDate: '',
+    stepLength: '',
+  });
 
   useFocusEffect(
     useCallback(() => {
-      const latest = getLatestWeight();
-      setWeight(latest?.value || '60.0');
+      const latestGender = getGender();
+      const latestWeight = getLatestWeight();
+      const latestHeight = getLatestHeight();
+      const latestBirthdate = getBirthDate();
+      const latestStepLength = getLatestStepLength();
+
+      setProfile(prev => ({
+        ...prev,
+        height: latestHeight?.value?.toString() ?? '160.0',
+        gender: latestGender ? latestGender : 'Male',
+        weight: latestWeight?.value?.toString() ?? '60.0',
+        stepLength: latestStepLength?.value?.toString() ?? '65.0',
+        birthDate: latestBirthdate
+          ? formatBirthDate(latestBirthdate)
+          : '01-01-2000',
+      }));
     }, []),
   );
 
   const profileItems = [
-    //   {
-    //     title: 'Gender',
-    //     value: 'Male',
-    //     route: 'GenderScreen',
-    //   },
-    //   {
-    //     title: 'Height',
-    //     value: '188 CM',
-    //     route: 'HeightScreen',
-    //   },
+    {
+      title: 'Gender',
+      value: profile.gender,
+      route: 'GenderScreen',
+    },
+    {
+      title: 'Height',
+      value: `${profile.height} CM`,
+      route: 'HeightScreen',
+    },
     {
       title: 'Weight',
-      value: weight,
+      value: `${profile.weight} KG`,
       route: 'WeightScreen',
     },
-    //   {
-    //     title: 'Birth Date',
-    //     value: '01-01-2000',
-    //     route: 'BirthDateScreen',
-    //   },
-    //   {
-    //     title: 'Step Length',
-    //     value: '50 CM',
-    //     route: 'StepLengthScreen',
-    //   },
+    {
+      title: 'Birth Date',
+      value: profile.birthDate,
+      route: 'BirthDateScreen',
+    },
+    {
+      title: 'Step Length',
+      value: `${profile.stepLength} CM`,
+      route: 'StepLengthScreen',
+    },
   ] as const;
 
   return (
