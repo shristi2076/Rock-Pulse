@@ -9,12 +9,14 @@ import {
 } from 'react-native';
 
 import Ionicons from '@react-native-vector-icons/ionicons';
+import { Colors } from '@/theme/colors';
 
 type Props = {
   value: string;
   bgColor?: string;
   onChangeText: (text: string) => void;
   goBack: () => void;
+  nowPlaying?: boolean;
 };
 
 export default function MusicHeader({
@@ -22,6 +24,7 @@ export default function MusicHeader({
   bgColor,
   onChangeText,
   goBack,
+  nowPlaying,
 }: Props) {
   const [isSearching, setIsSearching] = useState(false);
 
@@ -35,16 +38,31 @@ export default function MusicHeader({
       {!isSearching ? (
         <>
           <TouchableOpacity style={styles.iconBtn} onPress={goBack}>
-            <Ionicons name="chevron-back-outline" size={22} color="#fff" />
+            <Ionicons
+              name="chevron-back-outline"
+              size={22}
+              color={nowPlaying ? Colors.black : Colors.white}
+            />
           </TouchableOpacity>
 
-          <Text style={styles.title}>Music Player</Text>
+          <Text
+            style={[
+              styles.title,
+              { color: nowPlaying ? Colors.black : Colors.white },
+            ]}
+          >
+            Music Player
+          </Text>
 
           <TouchableOpacity
             style={styles.iconBtn}
             onPress={() => setIsSearching(true)}
           >
-            <Ionicons name="search-outline" size={22} color="#fff" />
+            <Ionicons
+              name="search-outline"
+              size={22}
+              color={nowPlaying ? Colors.black : Colors.white}
+            />
           </TouchableOpacity>
         </>
       ) : (
@@ -56,11 +74,15 @@ export default function MusicHeader({
               setIsSearching(false);
             }}
           >
-            <Ionicons name="arrow-back" size={22} color="#fff" />
+            <Ionicons
+              name="arrow-back"
+              size={22}
+              color={nowPlaying ? Colors.black : Colors.white}
+            />
           </TouchableOpacity>
 
           <View style={styles.searchContainer}>
-            <Ionicons name="search-outline" size={18} color="#9B8AA8" />
+            <Ionicons name="search-outline" size={20} color="#ffffff" />
 
             <TextInput
               placeholder="Search music..."
@@ -87,7 +109,6 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    color: '#fff',
     fontSize: 20,
     fontWeight: '700',
   },
@@ -100,7 +121,7 @@ const styles = StyleSheet.create({
     borderColor: '#2C2233',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#1A1020',
+    backgroundColor: 'transparent',
   },
 
   searchWrapper: {
@@ -117,7 +138,7 @@ const styles = StyleSheet.create({
     borderColor: '#2C2233',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#1A1020',
+    backgroundColor: 'transparent',
     marginRight: 12,
   },
 
@@ -127,7 +148,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 1,
     borderColor: '#2C2233',
-    backgroundColor: '#1A1020',
+    backgroundColor: 'transparent',
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 14,
@@ -135,7 +156,7 @@ const styles = StyleSheet.create({
 
   input: {
     flex: 1,
-    color: '#fff',
+    color: Colors.black,
     marginLeft: 10,
     fontSize: 15,
   },
