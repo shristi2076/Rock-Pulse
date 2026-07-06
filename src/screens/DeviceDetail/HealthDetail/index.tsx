@@ -1,4 +1,4 @@
-import HealthTemplate from '@/components/templates/Health';
+import HealthTemplate from '@/components/templates/deviceDetailTemplate/HealthTemplate';
 
 const HealthDetail = (props: any) => {
   return <HealthTemplate {...props} />;
