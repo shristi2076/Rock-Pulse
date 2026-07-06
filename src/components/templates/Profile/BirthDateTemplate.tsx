@@ -71,15 +71,15 @@ const BirthDateTemplate = () => {
           flexDirection: 'row',
         }}
       >
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1, justifyContent: 'center' }}>
           <WheelPicker data={days} value={day} onChange={setDay} />
         </View>
 
-        <View style={{ flex: 1, width: 300 }}>
+        <View style={{ flex: 1, justifyContent: 'center' }}>
           <WheelPicker data={months} value={month} onChange={setMonth} />
         </View>
 
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1, justifyContent: 'center' }}>
           <WheelPicker data={years} value={year} onChange={setYear} />
         </View>
       </View>
