@@ -6,4 +6,5 @@ export const STORAGE_KEYS = {
   BP: 'health:bp',
   GENDER: 'profile:gender',
   STEP_LENGTH: 'profile:step_length',
+  STEP_GOAL: 'goal:step_goal',
 };
