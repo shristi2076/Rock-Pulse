@@ -4,7 +4,10 @@ import Ionicons from '@react-native-vector-icons/ionicons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 // import { useWindowDimensions } from 'react-native';
-import HealthDetail from '@/screens/HealthDetail';
+import HealthDetail from '@/screens/DeviceDetail/HealthDetail';
+import WorkOutDetail from '@/screens/DeviceDetail/WorkOutDetail';
+import { Colors } from '@/theme/colors';
+import DetailSettingStack from '../DetailSettingStack';
 import { HomeStackParamList } from '../HomeStack/HomeStack';
 
 type DetailTabParamList = {
@@ -22,10 +25,7 @@ type DetailTabParamList = {
     id: string;
     name: string | null;
   };
-  Setting: {
-    id: string;
-    name: string | null;
-  };
+  Setting: undefined;
 };
 
 type Props = NativeStackScreenProps<HomeStackParamList, 'DeviceDetailTab'>;
@@ -42,8 +42,8 @@ const DetailsTab = ({ route }: Props) => {
       screenOptions={{
         headerShown: false,
 
-        tabBarActiveTintColor: '#FFD700',
-        tabBarInactiveTintColor: '#FFFFFF',
+        tabBarActiveTintColor: Colors.primary,
+        tabBarInactiveTintColor: Colors.white,
 
         tabBarShowLabel: true,
 
@@ -124,7 +124,7 @@ const DetailsTab = ({ route }: Props) => {
 
       <Tab.Screen
         name="WorkOut"
-        component={DeviceDetail}
+        component={WorkOutDetail}
         initialParams={{ id, name }}
         options={{
           tabBarLabel: 'Workout',
@@ -140,8 +140,8 @@ const DetailsTab = ({ route }: Props) => {
       />
       <Tab.Screen
         name="Setting"
-        component={DeviceDetail}
-        initialParams={{ id, name }}
+        component={DetailSettingStack}
+        // initialParams={{ id, name }}
         options={{
           tabBarLabel: 'Setting',
 

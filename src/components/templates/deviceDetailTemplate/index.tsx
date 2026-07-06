@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles */
 import React, { useEffect, useRef, useState } from 'react';
 import {
   InteractionManager,
@@ -9,12 +10,14 @@ import {
   View,
 } from 'react-native';
 
+import DeviceIcon from '@/components/elements/common/CustomIcons';
+import CustomPageHeader from '@/components/elements/common/CustomPageHeader';
 import { HomeStackParamList } from '@/components/navigation/HomeStack/HomeStack';
-import Ionicons from '@react-native-vector-icons/ionicons';
+import { Colors } from '@/theme/colors';
 import { RouteProp, useNavigation } from '@react-navigation/native';
+import { Buffer } from 'buffer';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useBle } from 'src/context/BleContext';
-import DeviceIcon from '@/components/elements/common/CustomIcons';
 import {
   getBatteryLevel,
   getCurrentSteps,
@@ -23,7 +26,6 @@ import {
   monitoringHeartRate,
   monitorSteps,
 } from 'src/services/bleServices';
-import CustomPageHeader from '@/components/elements/common/CustomPageHeader';
 
 type DeviceDetailRouteProp = RouteProp<HomeStackParamList, 'DeviceDetailTab'>;
 
@@ -49,6 +51,7 @@ const DeviceDetailTemplate = ({ route }: { route: DeviceDetailRouteProp }) => {
     systolic: number;
     diastolic: number;
   } | null>(null);
+  const [historyLogs, setHistoryLogs] = useState<any[]>([]);
 
   const [ancEnabled, setAncEnabled] = useState(true);
   const [encEnabled, setEncEnabled] = useState(true);
@@ -138,6 +141,26 @@ const DeviceDetailTemplate = ({ route }: { route: DeviceDetailRouteProp }) => {
   //   };
   // }, [id, connectedDevices]);
 
+  const sendCommand = async (bytes: number[]) => {
+    try {
+      const device = connectedDevices.get(id);
+
+      if (!device) return;
+
+      const base64 = Buffer.from(bytes).toString('base64');
+
+      await device.writeCharacteristicWithoutResponseForService(
+        '0000feea-0000-1000-8000-00805f9b34fb',
+        '0000fee2-0000-1000-8000-00805f9b34fb',
+        base64,
+      );
+
+      console.log('SENT CMD:', bytes);
+    } catch (e) {
+      console.log('SEND CMD ERROR:', e);
+    }
+  };
+
   useEffect(() => {
     let interactionTask: any;
 
@@ -204,6 +227,61 @@ const DeviceDetailTemplate = ({ route }: { route: DeviceDetailRouteProp }) => {
         bPSubscription.current = await getMonitorBloodPressure(device, bp => {
           setBPData(bp);
         });
+        const addRawMonitor = (
+          service: string,
+          char: string,
+          label: string,
+        ) => {
+          return device.monitorCharacteristicForService(
+            service,
+            char,
+            (error, c) => {
+              if (error || !c?.value) {
+                console.log(' log monitor Error:', error);
+                return;
+              }
+
+              const data = Buffer.from(c.value, 'base64');
+
+              console.log(label, {
+                hex: data.toString('hex'),
+                bytes: [...data],
+              });
+
+              setHistoryLogs(prev => {
+                const updated = [
+                  ...prev,
+                  {
+                    label,
+                    hex: data.toString('hex'),
+                    bytes: [...data],
+                    time: Date.now(),
+                  },
+                ];
+
+                return updated.slice(-30);
+              });
+            },
+          );
+        };
+
+        addRawMonitor(
+          '0000feea-0000-1000-8000-00805f9b34fb',
+          '0000fee1-0000-1000-8000-00805f9b34fb',
+          'FEE1',
+        );
+
+        addRawMonitor(
+          '0000fee7-0000-1000-8000-00805f9b34fb',
+          '0000fea1-0000-1000-8000-00805f9b34fb',
+          'FEA1',
+        );
+
+        addRawMonitor(
+          '0000feea-0000-1000-8000-00805f9b34fb',
+          '0000fee3-0000-1000-8000-00805f9b34fb',
+          'FEE3',
+        );
       } catch (err) {
         console.log('Error:', err);
       } finally {
@@ -253,7 +331,7 @@ const DeviceDetailTemplate = ({ route }: { route: DeviceDetailRouteProp }) => {
   return (
     <SafeAreaView style={styles.container}>
       <CustomPageHeader name={name} onBack={onBack} />
-      <View style={{ height: 56, justifyContent: 'center' }}>
+      {/* <View style={{ height: 56, justifyContent: 'center' }}>
         <TouchableOpacity
           onPress={onBack}
           hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
@@ -268,7 +346,7 @@ const DeviceDetailTemplate = ({ route }: { route: DeviceDetailRouteProp }) => {
         <Text style={styles.headerTitle} pointerEvents="none">
           {name}
         </Text>
-      </View>
+      </View> */}
       <ScrollView>
         <View style={styles.imageBox}>
           <DeviceIcon name="move" />
@@ -372,6 +450,52 @@ const DeviceDetailTemplate = ({ route }: { route: DeviceDetailRouteProp }) => {
             </Text>
           </View>
         </View>
+        <View style={styles.imageBox}>
+          <Text style={styles.caseBattery}>History Sync</Text>
+
+          <TouchableOpacity
+            style={styles.syncBtn}
+            onPress={() => sendCommand([0x5a, 0x05, 0x00, 0x01])}
+          >
+            <Text style={styles.syncBtnText}>
+              sendCommand([0x5A, 0x05, 0x00, 0x01]);
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.syncBtn}
+            onPress={() => sendCommand([0xa5, 0x01, 0x00])}
+          >
+            <Text style={styles.syncBtnText}>
+              sendCommand([0xA5, 0x01, 0x00])
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.syncBtn}
+            onPress={() => sendCommand([0x5a, 0x03, 0x01])}
+          >
+            <Text style={styles.syncBtnText}>
+              SsendCommand([0x5A, 0x03, 0x01])
+            </Text>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.imageBox}>
+          <Text style={styles.caseBattery}>BLE Logs</Text>
+
+          {historyLogs.slice(-10).map((item, index) => (
+            <Text
+              key={index}
+              style={{
+                color: Colors.white,
+                fontSize: 12,
+                marginTop: 6,
+              }}
+            >
+              {item.hex}
+            </Text>
+          ))}
+        </View>
         {/* ANC */}
         <View style={styles.optionBox}>
           <Text style={styles.optionLabel}>ANC</Text>
@@ -383,35 +507,30 @@ const DeviceDetailTemplate = ({ route }: { route: DeviceDetailRouteProp }) => {
           <Switch value={encEnabled} onValueChange={setEncEnabled} />
         </View>
         {/* ANC */}
-        <View style={styles.optionBox}>
+        {/* <View style={styles.optionBox}>
           <Text style={styles.optionLabel}>ANC</Text>
           <Switch value={ancEnabled} onValueChange={setAncEnabled} />
         </View>
-        {/* ENC */}
         <View style={styles.optionBox}>
           <Text style={styles.optionLabel}>ENC</Text>
           <Switch value={encEnabled} onValueChange={setEncEnabled} />
         </View>
-        {/* ANC */}
         <View style={styles.optionBox}>
           <Text style={styles.optionLabel}>ANC</Text>
           <Switch value={ancEnabled} onValueChange={setAncEnabled} />
         </View>
-        {/* ENC */}
         <View style={styles.optionBox}>
           <Text style={styles.optionLabel}>ENC</Text>
           <Switch value={encEnabled} onValueChange={setEncEnabled} />
         </View>
-        {/* ANC */}
         <View style={styles.optionBox}>
           <Text style={styles.optionLabel}>ANC</Text>
           <Switch value={ancEnabled} onValueChange={setAncEnabled} />
         </View>
-        {/* ENC */}
         <View style={styles.optionBox}>
           <Text style={styles.optionLabel}>ENC</Text>
           <Switch value={encEnabled} onValueChange={setEncEnabled} />
-        </View>
+        </View> */}
         {/* Sound Effects */}
         <View style={styles.soundEffectBox}>
           <View style={styles.soundHeader}>
@@ -471,7 +590,7 @@ const styles = StyleSheet.create({
   },
   backArrow: {
     fontSize: 22,
-    color: '#fff',
+    color: Colors.white,
   },
   headerTitle: {
     textAlign: 'center',
@@ -496,7 +615,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   caseBatteryPercent: {
-    color: '#fff',
+    color: Colors.white,
     fontSize: 18,
     marginBottom: 10,
   },
@@ -525,7 +644,7 @@ const styles = StyleSheet.create({
   },
   optionLabel: {
     fontSize: 16,
-    color: '#fff',
+    color: Colors.white,
   },
   soundEffectBox: {
     backgroundColor: '#1C1B22',
@@ -553,7 +672,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   soundBtnActive: {
-    backgroundColor: '#fff',
+    backgroundColor: Colors.white,
   },
   soundText: {
     color: '#ccc',
@@ -575,5 +694,17 @@ const styles = StyleSheet.create({
   },
   slider: {
     marginTop: 10,
+  },
+  syncBtn: {
+    backgroundColor: Colors.white,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 10,
+    marginTop: 10,
+  },
+
+  syncBtnText: {
+    color: '#000',
+    fontWeight: '600',
   },
 });
