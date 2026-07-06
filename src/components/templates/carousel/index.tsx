@@ -20,6 +20,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import Ionicons from '@react-native-vector-icons/ionicons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RootStackParamList } from '@/components/navigation/types';
+import { Colors } from '@/theme/colors';
 
 const { width, height } = Dimensions.get('window');
 
@@ -241,7 +242,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   skipText: {
-    color: '#fff',
+    color: Colors.white,
     fontSize: 16,
   },
   textContainer: {
@@ -250,7 +251,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   title: {
-    color: '#fff',
+    color: Colors.white,
     fontSize: 26,
     fontWeight: 'bold',
     textAlign: 'center',
@@ -281,12 +282,12 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
   },
   activeDot: {
-    backgroundColor: '#fff',
+    backgroundColor: Colors.white,
     width: 12,
     height: 12,
   },
   nextButton: {
-    backgroundColor: '#fff',
+    backgroundColor: Colors.white,
     borderRadius: 30,
     padding: 8,
   },

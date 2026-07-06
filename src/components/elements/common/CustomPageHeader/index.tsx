@@ -1,13 +1,19 @@
+import { Colors } from '@/theme/colors';
 import Ionicons from '@react-native-vector-icons/ionicons';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 type Props = {
   name: string | null;
+  titleColor?: string | null;
   onBack?: () => void;
 };
 
-const CustomPageHeader = ({ name, onBack }: Props): React.JSX.Element => {
+const CustomPageHeader = ({
+  name,
+  titleColor,
+  onBack,
+}: Props): React.JSX.Element => {
   return (
     <View style={styles.container}>
       {onBack && (
@@ -21,11 +27,21 @@ const CustomPageHeader = ({ name, onBack }: Props): React.JSX.Element => {
           }}
           style={styles.backBtn}
         >
-          <Ionicons name="chevron-back-outline" color="#FBFBFB" size={20} />
+          <Ionicons
+            name="chevron-back-outline"
+            color={titleColor ? titleColor : Colors.white}
+            size={20}
+          />
         </TouchableOpacity>
       )}
 
-      <Text style={styles.headerTitle} pointerEvents="none">
+      <Text
+        style={[
+          styles.headerTitle,
+          { color: titleColor ? titleColor : Colors.white },
+        ]}
+        pointerEvents="none"
+      >
         {name}
       </Text>
     </View>
@@ -58,7 +74,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 18,
     fontWeight: '600',
-    color: '#FBFBFB',
   },
 });
 

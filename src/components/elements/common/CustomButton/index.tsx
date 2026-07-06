@@ -1,4 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
+import { Colors } from '@/theme/colors';
 import React from 'react';
 import {
   ActivityIndicator,
@@ -57,7 +58,7 @@ const CustomButton: React.FC<Props> = ({
         <Text
           style={[
             {
-              color: '#fff',
+              color: Colors.white,
               fontSize: 14,
               fontWeight: '500',
             },

@@ -11,6 +11,7 @@ import AddStack from '../AddStack/AddStack';
 import HomeStack from '../HomeStack/HomeStack';
 import MusicPlayer from '@/screens/MusicPlayer';
 import SettingStack from '../SettingStack';
+import { Colors } from '@/theme/colors';
 
 // ✅ Types
 export type BottomTabParamList = {
@@ -78,8 +79,13 @@ const BottomTabs: React.FC = () => {
       screenOptions={{
         headerShown: false,
         animation: 'none',
-        tabBarActiveTintColor: '#FFD700',
-        tabBarInactiveTintColor: '#f6f8f8',
+
+        lazy: true,
+        freezeOnBlur: true,
+
+        tabBarActiveTintColor: Colors.primary,
+        tabBarInactiveTintColor: Colors.inactive,
+
         tabBarStyle: {
           backgroundColor: '#1f2020',
         },

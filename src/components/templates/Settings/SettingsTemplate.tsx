@@ -20,6 +20,7 @@ import CustomPageHeader from '@/components/elements/common/CustomPageHeader';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { SettingStackParamList } from '@/components/navigation/SettingStack';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Colors } from '@/theme/colors';
 
 export default function SettingsTemplate() {
   const navigation = useNavigation<NavigationProp<SettingStackParamList>>();
@@ -42,7 +43,11 @@ export default function SettingsTemplate() {
             >
               <Text style={styles.title}>{item}</Text>
 
-              <Ionicons name="chevron-forward" size={18} color="#FFD400" />
+              <Ionicons
+                name="chevron-forward"
+                size={18}
+                color={Colors.primary}
+              />
             </LinearGradient>
           </TouchableOpacity>
         ))}
@@ -82,7 +87,7 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    color: '#FFFFFF',
+    color: Colors.white,
     fontSize: 14,
     fontWeight: '500',
   },

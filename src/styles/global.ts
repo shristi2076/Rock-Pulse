@@ -1,3 +1,4 @@
+import { Colors } from '@/theme/colors';
 import { StyleSheet } from 'react-native';
 
 export const globalStyles = StyleSheet.create({
@@ -28,7 +29,7 @@ export const globalStyles = StyleSheet.create({
   },
 
   textWhite: {
-    color: '#fff',
+    color: Colors.white,
   },
 
   textGray: {

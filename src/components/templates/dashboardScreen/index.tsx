@@ -20,6 +20,7 @@ import { HomeStackParamList } from '@/components/navigation/HomeStack/HomeStack'
 import LinearGradient from 'react-native-linear-gradient';
 import { useBle } from 'src/context/BleContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Colors } from '@/theme/colors';
 // import { SearchBar } from 'react-native-screens';
 
 type OnboardingScreenNavProp = StackNavigationProp<
@@ -148,7 +149,7 @@ const DashboardPage = () => {
                       <Text
                         style={[
                           styles.cardConnected,
-                          { color: isConnected ? '#20d35b' : '#9ca3af' },
+                          { color: isConnected ? Colors.success : '#9ca3af' },
                         ]}
                       >
                         {isConnected ? 'Connected' : 'Disconnected'}
@@ -168,7 +169,7 @@ const DashboardPage = () => {
                             : reconnectDeviceById(item.id)
                         }
                       />
-                      <CustomButton
+                      {/* <CustomButton
                         title="Disconnect"
                         loading={connectingId === item.id}
                         disabled={connectingId === item.id}
@@ -176,7 +177,7 @@ const DashboardPage = () => {
                         onPress={async () => {
                           await removeDevice(item.id);
                         }}
-                      />
+                      /> */}
                     </View>
                   </View>
                   <View style={styles.iconWrapper}>
@@ -190,7 +191,7 @@ const DashboardPage = () => {
             <Text
               style={{
                 // backgroundColor: 'blue',
-                color: 'white',
+                color: Colors.white,
                 textAlign: 'center',
                 fontSize: 16,
               }}
@@ -241,7 +242,7 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    color: 'white',
+    color: Colors.white,
     fontSize: 22,
     fontWeight: 'bold',
   },
@@ -281,7 +282,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
   },
   cardTitle: {
-    color: '#fff',
+    color: Colors.white,
     fontSize: 18,
     fontWeight: '500',
   },
