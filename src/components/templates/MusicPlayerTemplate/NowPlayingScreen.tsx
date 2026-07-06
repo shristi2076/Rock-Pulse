@@ -20,6 +20,8 @@ import { useMusicPlayer } from '@/context/MusicPlayerContext';
 import { formatTime } from '@/services/commonFunction';
 import MusicHeader from '@/components/elements/common/CustomPageHeader/MusicHeader';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import CustomPageHeader from '@/components/elements/common/CustomPageHeader';
+import { Colors } from '@/theme/colors';
 
 export default function NowPlayingScreen({ navigation }: any) {
   const [isSliding, setIsSliding] = useState(false);
@@ -68,11 +70,19 @@ export default function NowPlayingScreen({ navigation }: any) {
           <Ionicons name="ellipsis-horizontal" size={22} color="#000" />
         </TouchableOpacity> */}
       <View style={styles.topSection}>
-        <MusicHeader
+        {/* <MusicHeader
           bgColor="#FFD400"
           value={searchText}
-          onChangeText={setSearchText}
+          // onChangeText={setSearchText}
           goBack={() => {
+            navigation.goBack();
+          }}
+          nowPlaying
+        /> */}
+        <CustomPageHeader
+          name="Music Player"
+          titleColor="#000"
+          onBack={() => {
             navigation.goBack();
           }}
         />
@@ -91,72 +101,75 @@ export default function NowPlayingScreen({ navigation }: any) {
       <Text style={styles.title}>{currentTrack.title}</Text>
       {/* <Text style={styles.title}>{formatTime(sliderValue)}</Text> */}
 
-      <View
-        style={styles.sliderContainer}
-        onLayout={event => {
-          setSliderWidth(event.nativeEvent.layout.width);
-        }}
-      >
-        {isSliding && (
-          <View
-            style={[
-              styles.tooltip,
-              {
-                left: (sliderValue / currentTrack.duration) * sliderWidth - 25,
-              },
-            ]}
-          >
-            <Text style={styles.tooltipText}>{formatTime(sliderValue)}</Text>
-          </View>
-        )}
-
-        <Slider
-          style={styles.slider}
-          value={sliderValue}
-          minimumValue={0}
-          maximumValue={currentTrack.duration}
-          step={1}
-          minimumTrackTintColor="#FFD400"
-          maximumTrackTintColor="#555"
-          thumbTintColor="#FFD400"
-          onSlidingStart={() => {
-            setIsSliding(true);
+      <View style={styles.bottomContainer}>
+        <View
+          style={styles.sliderContainer}
+          onLayout={event => {
+            setSliderWidth(event.nativeEvent.layout.width);
           }}
-          onValueChange={value => {
-            setSliderValue(value);
-          }}
-          onSlidingComplete={value => {
-            seekTo(value);
+        >
+          {isSliding && (
+            <View
+              style={[
+                styles.tooltip,
+                {
+                  left:
+                    (sliderValue / currentTrack.duration) * sliderWidth - 25,
+                },
+              ]}
+            >
+              <Text style={styles.tooltipText}>{formatTime(sliderValue)}</Text>
+            </View>
+          )}
 
-            setSliderValue(value);
+          <Slider
+            style={styles.slider}
+            value={sliderValue}
+            minimumValue={0}
+            maximumValue={currentTrack.duration}
+            step={1}
+            minimumTrackTintColor="#FFD400"
+            maximumTrackTintColor="#555"
+            thumbTintColor="#FFD400"
+            onSlidingStart={() => {
+              setIsSliding(true);
+            }}
+            onValueChange={value => {
+              setSliderValue(value);
+            }}
+            onSlidingComplete={value => {
+              seekTo(value);
 
-            setIsSliding(false);
-          }}
-        />
-      </View>
+              setSliderValue(value);
 
-      <View style={styles.timeRow}>
-        <Text style={styles.time}>{formatTime(currentTime)}</Text>
-
-        <Text style={styles.time}>{formatTime(currentTrack.duration)}</Text>
-      </View>
-
-      <View style={styles.controls}>
-        <TouchableOpacity onPress={playPrev}>
-          <Ionicons name="play-skip-back" size={34} color="#fff" />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.playButton} onPress={togglePlay}>
-          <Ionicons
-            name={isPlaying ? 'pause' : 'play'}
-            size={38}
-            color="#000"
+              setIsSliding(false);
+            }}
           />
-        </TouchableOpacity>
+        </View>
 
-        <TouchableOpacity onPress={playNext}>
-          <Ionicons name="play-skip-forward" size={34} color="#fff" />
-        </TouchableOpacity>
+        <View style={styles.timeRow}>
+          <Text style={styles.time}>{formatTime(currentTime)}</Text>
+
+          <Text style={styles.time}>{formatTime(currentTrack.duration)}</Text>
+        </View>
+
+        <View style={styles.controls}>
+          <TouchableOpacity onPress={playPrev}>
+            <Ionicons name="play-skip-back" size={34} color="#fff" />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.playButton} onPress={togglePlay}>
+            <Ionicons
+              name={isPlaying ? 'pause' : 'play'}
+              size={38}
+              color={!isPlaying ? Colors.white : '#FFD400'}
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={playNext}>
+            <Ionicons name="play-skip-forward" size={34} color="#fff" />
+          </TouchableOpacity>
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -173,7 +186,7 @@ const styles = StyleSheet.create({
     height: 310,
     borderBottomLeftRadius: 120,
     borderBottomRightRadius: 120,
-    // paddingHorizontal: 20,
+    paddingHorizontal: 20,
     paddingTop: 10,
     // alignItems: 'center',
   },
@@ -214,7 +227,7 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    color: '#fff',
+    color: Colors.white,
     textAlign: 'center',
     fontSize: 28,
     fontWeight: '700',
@@ -244,14 +257,20 @@ const styles = StyleSheet.create({
     width: 74,
     height: 74,
     borderRadius: 37,
-    backgroundColor: '#FFD400',
+    // backgroundColor: '#FFD400',
     justifyContent: 'center',
     alignItems: 'center',
     marginHorizontal: 30,
   },
-  sliderContainer: {
+
+  bottomContainer: {
+    position: 'absolute',
+    bottom: 40,
     width: '90%',
     alignSelf: 'center',
+  },
+
+  sliderContainer: {
     marginTop: 40,
   },
 

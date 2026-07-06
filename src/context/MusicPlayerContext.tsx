@@ -98,9 +98,15 @@ export const MusicPlayerProvider = ({
           return;
         }
 
-        setCurrentTime(seconds);
+        setCurrentTime(prev => {
+          if (Math.abs(prev - seconds) < 0.5) {
+            return prev;
+          }
+
+          return seconds;
+        });
       });
-    }, 250);
+    }, 500);
   }, [clearProgressInterval]);
 
   const playTrack = useCallback(
@@ -206,15 +212,15 @@ export const MusicPlayerProvider = ({
       return;
     }
 
-    isSeekingRef.current = true;
-
-    setCurrentTime(seconds);
+    console.log('Seeking to:', seconds);
 
     sound.setCurrentTime(seconds);
 
     setTimeout(() => {
-      isSeekingRef.current = false;
-    }, 200);
+      sound.getCurrentTime(time => {
+        console.log('Actually at:', time);
+      });
+    }, 500);
   }, []);
 
   useEffect(() => {

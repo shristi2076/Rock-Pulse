@@ -3,8 +3,10 @@ import React, { useEffect, useState } from 'react';
 
 import {
   ActivityIndicator,
+  AppState,
   FlatList,
   Image,
+  Linking,
   PermissionsAndroid,
   Platform,
   StyleSheet,
@@ -26,6 +28,7 @@ import MusicHeader from '@/components/elements/common/CustomPageHeader/MusicHead
 import { MusicPlayerScreenProps } from '@/components/navigation/types';
 import { Track } from '@/types/music';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Colors } from '@/theme/colors';
 
 const blockedFolders = [
   'Android',
@@ -41,6 +44,10 @@ type Props = MusicPlayerScreenProps;
 export default function MusicPlayerTemplate({
   navigation,
 }: Props): React.JSX.Element {
+  const [permissionGranted, setPermissionGranted] = useState<boolean | null>(
+    null,
+  );
+
   const [tracks, setTracks] = useState<Track[]>([]);
 
   const [isLoading, setIsLoading] = useState(false);
@@ -60,16 +67,30 @@ export default function MusicPlayerTemplate({
     playPrev,
   } = useMusicPlayer();
 
-  useEffect(() => {
-    requestStoragePermission();
-  }, []);
-
   const filteredTracks = tracks.filter(track =>
     track.title.toLowerCase().includes(searchText.toLowerCase()),
   );
+  const checkStoragePermission = async (): Promise<boolean> => {
+    if (Platform.OS === 'ios') {
+      return true;
+    }
+
+    const androidVersion = Number(Platform.Version);
+
+    if (androidVersion >= 33) {
+      return PermissionsAndroid.check(
+        PermissionsAndroid.PERMISSIONS.READ_MEDIA_AUDIO,
+      );
+    }
+
+    return PermissionsAndroid.check(
+      PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+    );
+  };
 
   const requestStoragePermission = async (): Promise<void> => {
     if (Platform.OS === 'ios') {
+      setPermissionGranted(true);
       scanLocalAudio();
       return;
     }
@@ -87,11 +108,16 @@ export default function MusicPlayerTemplate({
 
       const granted = await PermissionsAndroid.request(permissionToken);
 
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+      const isGranted = granted === PermissionsAndroid.RESULTS.GRANTED;
+
+      setPermissionGranted(isGranted);
+
+      if (isGranted) {
         scanLocalAudio();
       }
     } catch (e) {
       console.log(e);
+      setPermissionGranted(false);
     }
   };
 
@@ -187,6 +213,33 @@ export default function MusicPlayerTemplate({
     return audioFiles;
   };
 
+  useEffect(() => {
+    requestStoragePermission();
+
+    const subscription = AppState.addEventListener('change', async state => {
+      if (state === 'active') {
+        const granted = await checkStoragePermission();
+
+        setPermissionGranted(granted);
+
+        if (granted && !permissionGranted) {
+          scanLocalAudio();
+        }
+      }
+    });
+
+    return () => subscription.remove();
+  }, []);
+
+  if (permissionGranted === null) {
+    return (
+      <SafeAreaView style={styles.centered}>
+        <ActivityIndicator size="large" color="#FFD400" />
+      </SafeAreaView>
+    );
+  }
+
+  console.log('music', isLoading, permissionGranted);
   return (
     <SafeAreaView style={styles.container}>
       {/* <CustomPageHeader
@@ -215,7 +268,7 @@ export default function MusicPlayerTemplate({
 
       {isLoading ? (
         <ActivityIndicator size="large" color="#FFD400" />
-      ) : (
+      ) : permissionGranted ? (
         <FlatList
           data={filteredTracks}
           keyExtractor={item => item.id}
@@ -272,18 +325,35 @@ export default function MusicPlayerTemplate({
                     {formatTime(item.duration || 0)}
                   </Text>
 
-                  <TouchableOpacity>
+                  {/* <TouchableOpacity>
                     <Ionicons
                       name="ellipsis-horizontal"
                       size={18}
                       color="#ffffff"
                     />
-                  </TouchableOpacity>
+                  </TouchableOpacity> */}
                 </View>
               </TouchableOpacity>
             );
           }}
         />
+      ) : (
+        <SafeAreaView style={styles.centered}>
+          <Ionicons name="musical-notes-outline" size={70} color="#666" />
+
+          <Text style={styles.permissionTitle}>Music Permission Required</Text>
+
+          <Text style={styles.permissionText}>
+            Allow audio access to scan and play music stored on your device.
+          </Text>
+
+          <TouchableOpacity
+            style={styles.permissionButton}
+            onPress={() => Linking.openSettings()}
+          >
+            <Text style={styles.permissionButtonText}>Open Settings</Text>
+          </TouchableOpacity>
+        </SafeAreaView>
       )}
 
       {currentTrack && (
@@ -376,6 +446,7 @@ const styles = StyleSheet.create({
 
   centered: {
     flex: 1,
+    backgroundColor: '#0F0715',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -400,6 +471,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 18,
+    gap: 5,
   },
 
   leftSection: {
@@ -434,6 +506,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 14,
+    paddingEnd: 16,
   },
 
   songDuration: {
@@ -477,5 +550,32 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: '#a8a29e',
     fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
+  },
+
+  permissionTitle: {
+    color: Colors.white,
+    fontSize: 18,
+    fontWeight: '600',
+    marginTop: 16,
+  },
+
+  permissionText: {
+    color: '#aaa',
+    textAlign: 'center',
+    marginTop: 8,
+    paddingHorizontal: 30,
+  },
+
+  permissionButton: {
+    backgroundColor: '#FFD400',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 12,
+    marginTop: 20,
+  },
+
+  permissionButtonText: {
+    color: '#000',
+    fontWeight: '600',
   },
 });
