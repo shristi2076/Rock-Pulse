@@ -1,20 +1,23 @@
+import BluetoothRequiredModal from '@/components/elements/common/BluetoothRequiredModal';
+import { BleProvider } from '@/context/BleContext';
+import { MusicPlayerProvider } from '@/context/MusicPlayerContext';
+import { Colors } from '@/theme/colors';
 import React, { useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
+  AppState,
+  Linking,
   PermissionsAndroid,
   Platform,
   StatusBar,
+  StyleSheet,
   Text,
-  Alert,
-  View,
-  ActivityIndicator,
-  Linking,
   TouchableOpacity,
+  View,
 } from 'react-native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { BleManager, State } from 'react-native-ble-plx';
-import { BleProvider } from '@/context/BleContext';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import MainRouter from 'src/components/navigation';
-import { MusicPlayerProvider } from '@/context/MusicPlayerContext';
 
 const manager = new BleManager();
 
@@ -22,6 +25,7 @@ async function requestBluetoothPermissions(): Promise<boolean> {
   if (Platform.OS === 'ios') return true;
 
   const apiLevel = parseInt(Platform.Version.toString(), 10);
+  console.log('🚀 ~ requestBluetoothPermissions ~ apiLevel:', apiLevel);
 
   if (apiLevel < 31) {
     const granted = await PermissionsAndroid.request(
@@ -42,57 +46,73 @@ async function requestBluetoothPermissions(): Promise<boolean> {
     );
   }
 }
+async function checkBluetoothPermissions(): Promise<boolean> {
+  if (Platform.OS === 'ios') return true;
+
+  const apiLevel = Number(Platform.Version);
+
+  if (apiLevel < 31) {
+    return PermissionsAndroid.check(
+      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+    );
+  }
+
+  const scanGranted = await PermissionsAndroid.check(
+    PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
+  );
+
+  const connectGranted = await PermissionsAndroid.check(
+    PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
+  );
+
+  return scanGranted && connectGranted;
+}
 
 function App() {
   const [permissionGranted, setPermissionGranted] = useState<boolean | null>(
     null,
   );
   const [bluetoothOn, setBluetoothOn] = useState<boolean | null>(null);
+  const [showBluetoothModal, setShowBluetoothModal] = useState(false);
   const [ready, setReady] = useState(false);
-
-  const turnBluetoothOn = () => {
-    Alert.alert(
-      'Bluetooth is off',
-      'Please turn on Bluetooth to scan for devices.',
-      [
-        { text: 'Cancel' },
-        {
-          text: 'Open Settings',
-          onPress: () => {
-            if (Platform.OS === 'ios') {
-              Linking.openURL('App-Prefs:Bluetooth');
-            } else {
-              Linking.sendIntent('android.settings.BLUETOOTH_SETTINGS');
-            }
-          },
-        },
-      ],
-    );
-  };
 
   useEffect(() => {
     const init = async () => {
       const granted = await requestBluetoothPermissions();
       setPermissionGranted(granted);
-      if (!granted) return;
     };
 
     init();
 
-    //  Correct: rely ONLY on state listener
-    const subscription = manager.onStateChange(state => {
-      console.log('Bluetooth state:', state);
-      setBluetoothOn(state === State.PoweredOn);
+    const bleSubscription = manager.onStateChange(state => {
+      const isOn = state === State.PoweredOn;
+
+      setBluetoothOn(isOn);
+      setShowBluetoothModal(!isOn);
     }, true);
 
-    // small delay to avoid flicker on reload
-    const timer = setTimeout(() => setReady(true), 400);
+    const appStateSubscription = AppState.addEventListener(
+      'change',
+      async state => {
+        if (state === 'active') {
+          const granted = await checkBluetoothPermissions();
+          setPermissionGranted(granted);
+
+          const bleState = await manager.state();
+          setBluetoothOn(bleState === State.PoweredOn);
+        }
+      },
+    );
+
+    const timer = setTimeout(() => {
+      setReady(true);
+    }, 400);
 
     return () => {
-      subscription.remove();
+      bleSubscription.remove();
+      appStateSubscription.remove();
       clearTimeout(timer);
 
-      //  avoid destroying in dev (fast refresh issue)
       if (!__DEV__) {
         manager.destroy();
       }
@@ -127,37 +147,51 @@ function App() {
             padding: 20,
           }}
         >
-          <Text style={{ textAlign: 'center', marginBottom: 10 }}>
-            Bluetooth permission is required to continue.
-          </Text>
-          <Text>Enable it from settings.</Text>
-        </View>
-      </SafeAreaProvider>
-    );
-  }
-
-  //  Bluetooth OFF
-  if (!bluetoothOn) {
-    return (
-      <SafeAreaProvider>
-        <View
-          style={{
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-            padding: 20,
-          }}
-        >
-          <TouchableOpacity
-            onPress={turnBluetoothOn}
-            style={{ alignItems: 'center', marginBottom: 10 }}
+          <Text
+            style={{ textAlign: 'center', marginBottom: 10, color: 'white' }}
           >
-            <Text>Bluetooth is off. Please turn it on.</Text>
+            Nearby devices permission is required to continue.
+          </Text>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => Linking.openSettings()}
+          >
+            <Text style={styles.buttonText}>Open App Settings</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaProvider>
     );
   }
+  // if (showBluetoothModal) {
+  //   if (Platform.OS === 'android') {
+  //     BluetoothStateManager.requestToEnable();
+  //   } else {
+  //     Linking.openURL('App-Prefs:Bluetooth');
+  //   }
+  // }
+
+  //  Bluetooth OFF
+  // if (!bluetoothOn) {
+  //   return (
+  //     <SafeAreaProvider>
+  //       <View
+  //         style={{
+  //           flex: 1,
+  //           justifyContent: 'center',
+  //           alignItems: 'center',
+  //           padding: 20,
+  //         }}
+  //       >
+  //         <TouchableOpacity
+  //           onPress={turnBluetoothOn}
+  //           style={{ alignItems: 'center', marginBottom: 10 }}
+  //         >
+  //           <Text>Bluetooth is off. Please turn it on.</Text>
+  //         </TouchableOpacity>
+  //       </View>
+  //     </SafeAreaProvider>
+  //   );
+  // }
 
   //  Main App
   return (
@@ -170,8 +204,47 @@ function App() {
           </View>
         </SafeAreaProvider>
       </MusicPlayerProvider>
+      <BluetoothRequiredModal
+        visible={showBluetoothModal}
+        onClose={() => setShowBluetoothModal(false)}
+      />
     </BleProvider>
   );
 }
 
 export default App;
+const styles = StyleSheet.create({
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  modalContainer: {
+    width: '100%',
+    borderRadius: 20,
+    padding: 24,
+    backgroundColor: Colors.white,
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: '600',
+    marginBottom: 12,
+  },
+  description: {
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  button: {
+    backgroundColor: '#000',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 10,
+  },
+  buttonText: {
+    color: Colors.white,
+    fontWeight: '600',
+  },
+});
