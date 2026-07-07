@@ -81,7 +81,7 @@ const HealthTemplate = ({ route }: { route: DeviceDetailRouteProp }) => {
         setStepsData(current);
 
         stepsSubscription.current = monitorSteps(device, step => {
-          console.log('monitor step ', step);
+          // console.log('monitor step ', step);
           setStepsData(step);
         });
       } catch (err) {
